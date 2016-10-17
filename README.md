@@ -1,3 +1,21 @@
+## This is a forked & modified version of **pdfmake/pdfmake**.
+
+### Changes
+1. `npm` is used for browser, not server (node). This also means, I've chosen to include `build` folder only for distributing via npm.
+
+2. Webpack is supported.
+
+3. Korean language is supported via `D2Coding.tff` font file.
+
+### Workflow
+- Run `gulp build` to generate webpack-compatible build file, `build/pdfmake.js`
+
+- Run `grunt dump_dir` to generate `build/vfs_fonts.js` after including wanted `.tff` files inside `examples/` folder.
+
+<hr>
+ORIGINAL DOC
+<hr>
+
 pdfmake [![Build Status](https://img.shields.io/travis/pdfmake/pdfmake.svg?maxAge=2592000)](https://travis-ci.org/pdfmake/pdfmake) [![NPM version](https://img.shields.io/npm/v/pdfmake-node.svg?maxAge=2592000)](https://www.npmjs.com/package/pdfmake-node) ![Bower version](https://img.shields.io/bower/v/pdfmake-dist.svg?maxAge=2592000) [![Packagist version](https://img.shields.io/packagist/v/pdfmake/pdfmake.svg?maxAge=2592000)](https://packagist.org/packages/pdfmake/pdfmake)
 =======
 
