@@ -21,7 +21,6 @@ var uglifyOptions = {
 	}
 };
 
-
 gulp.task('default', [/*'lint',*/ 'test', 'build']);
 gulp.task('build', function() {
 	return gulp.src('src/browser-extensions/pdfMake.js')
