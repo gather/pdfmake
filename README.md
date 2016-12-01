@@ -6,7 +6,9 @@
 2. Webpack is supported
   - https://github.com/bpampuch/pdfmake/issues/522#issuecomment-187648508
 
-3. Support for multiple `documentDefinition` objects in one PDF has been added.
+3. Dev Playground has been converted to use browser-side PDFMake rather than back-end.
+
+4. `pdfmake/pdfmake` updates have been merged in.
 
 ### Workflow
 - `cd public`
