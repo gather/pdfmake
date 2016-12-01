@@ -1,4 +1,4 @@
-## This is a forked & modified version of [pdfmake/pdfmake](https://github.com/pdfmake/pdfmake), which is again fork of the original [bpampuch/pdfmake](https://github.com/bpampuch/pdfmake).
+## This is a forked & modified version of [danishin/pdfmake](https://github.com/danishin/pdfmake), which is a fork of [pdfmake/pdfmake](https://github.com/pdfmake/pdfmake), which is again a fork of the original [bpampuch/pdfmake](https://github.com/bpampuch/pdfmake).
 
 ### Changes
 1. `npm` is used for browser, not server (node). This also means, I've chosen to include `build` folder only for distributing via npm.
@@ -6,13 +6,14 @@
 2. Webpack is supported
   - https://github.com/bpampuch/pdfmake/issues/522#issuecomment-187648508
 
-3. Korean language is supported via `D2Coding.tff` font file:
-  - https://github.com/Joungkyun/font-d2coding 
-  - https://github.com/opencloset/opencloset/pull/778#issuecomment-214678011
+3. Support for multiple `documentDefinition` objects in one PDF has been added.
 
 ### Workflow
+- `cd public`
+- `git submodule init`
+- `git submodule update
+- `npm install`
 - Run `gulp build` to generate webpack-compatible build file, `build/pdfmake.js`
-
 - Run `grunt dump_dir` to generate `build/vfs_fonts.js` after including wanted `.tff` files inside `examples/` folder. (https://github.com/bpampuch/pdfmake/wiki/Custom-Fonts---client-side)
 
 <hr>

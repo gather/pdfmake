@@ -5,6 +5,7 @@
 
 var PdfPrinter = require('../printer');
 var FileSaver = require('../../libs/FileSaver.js/FileSaver');
+var Bluebird = require('bluebird');
 var saveAs = FileSaver.saveAs;
 
 var defaultClientFonts = {
@@ -30,33 +31,83 @@ function canCreatePdf() {
 	return true;
 }
 
+function isArray(obj){
+	return !!obj && Array === obj.constructor;
+}
+
+function fork (async_calls, shared_callback) {
+	var counter = async_calls.length;
+	var all_results = [];
+	function makeCallback (index) {
+		return function () {
+			counter --;
+			var results = [];
+			// we use the arguments object here because some callbacks 
+			// in Node pass in multiple arguments as result.
+			for (var i=0;i<arguments.length;i++) {
+				results[i] = arguments[i];
+			}
+			all_results[index] = results;
+			if (counter == 0) {
+				shared_callback(all_results);
+			}
+		}
+	}
+
+	for (var i=0;i<async_calls.length;i++) {
+		async_calls[i](makeCallback(i));
+	}
+}
+
 Document.prototype._createDoc = function(options, callback) {
 	var printer = new PdfPrinter(this.fonts);
 	printer.fs.bindFS(this.vfs);
 
-	var doc = printer.createPdfKitDocument(this.docDefinition, options);
+	var docs = [];
+	var makePages = [];
 	var chunks = [];
 	var result;
+	var docDefinition = this.docDefinition;
+	if (!isArray(docDefinition)) docDefinition = [docDefinition];
 
-	doc.on('data', function(chunk) {
-		chunks.push(chunk);
-	});
-	doc.on('end', function() {
+	var asyncFunctions = [];
+	var i = 0;
+
+	function appendDoc(i) {
+		return new Bluebird(function (resolve, reject) {
+			docs[i] = printer.createPdfKitDocument(docDefinition[i], options);
+
+			docs[i].on('data', function(chunk) {
+				chunks.push(chunk);
+			});
+			docs[i].on('end', function() {
+				makePages[i] = docs[i]._pdfMakePages;
+			});
+			return resolve(docs[i].end());
+		});
+	}
+
+	for (i; i < docDefinition.length; i++) {
+		asyncFunctions.push(appendDoc(i));
+	}
+	Bluebird.all(asyncFunctions)
+	.then(function () {
 		result = Buffer.concat(chunks);
-		callback(result, doc._pdfMakePages);
+		console.info(makePages[0]);
+		callback(result, makePages[0]);
+		// callback(result);
 	});
-	doc.end();
 };
 
 Document.prototype._getPages = function(options, cb){
-  if (!cb) throw 'getBuffer is an async method and needs a callback argument';
-  this._createDoc(options, function(ignoreBuffer, pages){
-    cb(pages);
-  });
+	if (!cb) throw 'getBuffer is an async method and needs a callback argument';
+	this._createDoc(options, function(ignoreBuffer, pages){
+		cb(pages);
+	});
 };
 
 Document.prototype.open = function(message) {
-		// we have to open the window immediately and store the reference
+	// we have to open the window immediately and store the reference
 	// otherwise popup blockers will stop us
 	var win = window.open('', '_blank');
 
@@ -121,34 +172,34 @@ Document.prototype.print = function() {
 };
 
 Document.prototype.download = function(defaultFileName, cb) {
-   if(typeof defaultFileName === "function") {
-      cb = defaultFileName;
-      defaultFileName = null;
-   }
+	if(typeof defaultFileName === "function") {
+		cb = defaultFileName;
+		defaultFileName = null;
+	}
 
-   defaultFileName = defaultFileName || 'file.pdf';
-   this.getBuffer(function (result) {
-       var blob;
-       try {
-           blob = new Blob([result], { type: 'application/pdf' });
-       }
-       catch (e) {
-           // Old browser which can't handle it without making it an byte array (ie10)
-           if (e.name == "InvalidStateError") {
-               var byteArray = new Uint8Array(result);
-               blob = new Blob([byteArray.buffer], { type: 'application/pdf' });
-           }
-       }
-       if (blob) {
-           saveAs(blob, defaultFileName);
-       }
-       else {
-           throw 'Could not generate blob';
-       }
-       if (typeof cb === "function") {
-           cb();
-       }
-   });
+	defaultFileName = defaultFileName || 'file.pdf';
+	this.getBuffer(function (result) {
+		var blob;
+		try {
+			blob = new Blob([result], { type: 'application/pdf' });
+		}
+		catch (e) {
+			// Old browser which can't handle it without making it an byte array (ie10)
+			if (e.name == "InvalidStateError") {
+				var byteArray = new Uint8Array(result);
+				blob = new Blob([byteArray.buffer], { type: 'application/pdf' });
+			}
+		}
+		if (blob) {
+			saveAs(blob, defaultFileName);
+		}
+		else {
+			throw 'Could not generate blob';
+		}
+		if (typeof cb === "function") {
+			cb();
+		}
+	});
 };
 
 Document.prototype.getBase64 = function(cb, options) {
@@ -168,7 +219,7 @@ Document.prototype.getDataUrl = function(cb, options) {
 Document.prototype.getBuffer = function(cb, options) {
 	if (!cb) throw 'getBuffer is an async method and needs a callback argument';
 	this._createDoc(options, function(buffer){
-    cb(buffer);
+	cb(buffer);
   });
 };
 
