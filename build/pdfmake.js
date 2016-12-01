@@ -108,7 +108,10 @@ return /******/ (function(modules) { // webpackBootstrap
 		if (isArray(docDefinition)) {
 			docDefinition = docDefinition[0];
 			for (var i = 0; i < docDefinition.length; i++) {
-				docDefinition.content.push(this.docDefinition[i].content);
+				docDefinition.content.push({
+					pageBreak: "before",
+					stack: this.docDefinition[i].content
+				});
 			}
 		}
 		var doc = printer.createPdfKitDocument(docDefinition, options);
