@@ -106,9 +106,20 @@
 
 				eval(editor.getSession().getValue());
 
+				// // Back-end rendering
+				// $http.post('/pdf', dd).
+				// 	success(function(data, status, headers, config) {
+
+				// 		document.getElementById('pdfV').src = data;
+				// 	}).
+				// 	error(function(data, status, headers, config) {
+				// 		console.log('ERROR', data);
+				// 	});
+
+				// Front-end rendering
 				pdfMake.createPdf(dd, pdfMake.fonts, pdfMake.vfs).getDataUrl(function (data) {
 						document.getElementById('pdfV').src = data;
-                    });
+					});
 			}
 		}
 	};
@@ -118,7 +129,7 @@
 <script src='//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js'></script>
 <script src='//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular.min.js'></script>
 <script src='//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.10/angular-route.min.js'></script>
-<script src='build/pdfmake.min.js'></script>
+<script src='build/pdfmake.js'></script>
 <script src='build/vfs_fonts.js'></script>
 
 <script type="text/javascript" src="playground.js"></script>
