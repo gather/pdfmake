@@ -41,17 +41,7 @@ Document.prototype._createDoc = function(options, callback) {
 
 	var chunks = [];
 	var result;
-	var docDefinition = this.docDefinition;
-	if (isArray(docDefinition)) {
-		docDefinition = docDefinition[0];
-		for (var i = 0; i < docDefinition.length; i++) {
-			docDefinition.content.push({
-				pageBreak: "before",
-				stack: this.docDefinition[i].content
-			});
-		}
-	}
-	var doc = printer.createPdfKitDocument(docDefinition, options);
+	var doc = printer.createPdfKitDocument(this.docDefinition, options);
 
 	doc.on('data', function(chunk) {
 		chunks.push(chunk);
